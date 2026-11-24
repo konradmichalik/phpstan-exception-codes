@@ -22,9 +22,9 @@ The range is fixed, not derived from the current time, so a run gives the same r
 
 ```neon
 parameters:
-	exceptionCodes:
-		minimum: 1000000000
-		maximum: 2147483647
+    exceptionCodes:
+        minimum: 1000000000
+        maximum: 2147483647
 ```
 
 ## Development

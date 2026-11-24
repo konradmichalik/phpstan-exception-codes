@@ -52,4 +52,21 @@ final class Thrower
     {
         throw new HttpProblemException(404, 'skipped');
     }
+
+    public function intParameterThatIsNotTheCode(): never
+    {
+        throw new StatusException('skipped', 404);
+    }
+
+    public function intParameterWithoutArgument(): never
+    {
+        throw new StatusException('skipped');
+    }
+}
+
+final class StatusException extends \Exception
+{
+    public function __construct(string $message, public readonly int $status = 200) {
+        parent::__construct($message);
+    }
 }

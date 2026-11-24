@@ -26,10 +26,11 @@ final class DuplicateExceptionCodeRule implements Rule
      */
     public function processNode(Node $node, Scope $scope): array
     {
+        // PHPStan analyses a trait once per using class, so the same place can be collected repeatedly
         $locationsByCode = [];
         foreach ($node->get(ExceptionCodeCollector::class) as $file => $entries) {
             foreach ($entries as [$code, $line]) {
-                $locationsByCode[$code][] = [$file, $line];
+                $locationsByCode[$code][$file . ':' . $line] = [$file, $line];
             }
         }
 

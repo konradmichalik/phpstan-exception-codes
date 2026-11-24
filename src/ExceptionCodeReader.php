@@ -54,7 +54,7 @@ final class ExceptionCodeReader
 
             $parameters = $reflection->getConstructor()->getVariants()[0]->getParameters();
             $parameter = $parameters[self::CODE_PARAMETER_POSITION] ?? null;
-            if ($parameter?->getType()->isInteger()->yes() === true) {
+            if ($parameter?->getName() === 'code' && $parameter->getType()->isInteger()->yes()) {
                 return $parameter->getName();
             }
         }

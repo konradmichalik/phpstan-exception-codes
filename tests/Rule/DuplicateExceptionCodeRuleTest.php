@@ -32,6 +32,11 @@ final class DuplicateExceptionCodeRuleTest extends RuleTestCase
         ]);
     }
 
+    public function testThrowInTraitUsedTwiceIsNotADuplicate(): void
+    {
+        $this->analyse([__DIR__ . '/data/trait.php'], []);
+    }
+
     protected function getRule(): Rule
     {
         return new DuplicateExceptionCodeRule();

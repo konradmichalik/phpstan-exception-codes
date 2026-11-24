@@ -25,6 +25,7 @@ final class ExceptionCodeCollector implements Collector
     {
         $code = $this->reader->read($node, $scope);
 
+        // 0 means no code, which ExceptionCodeRule reports, so it must not count as a duplicate
         return $code === null || $code === 0 ? null : [$code, $node->getStartLine()];
     }
 }
