@@ -8,6 +8,8 @@ use PhpParser\Node\Arg;
 use PhpParser\Node\Expr\New_;
 use PhpParser\Node\Expr\Throw_;
 use PHPStan\Analyser\Scope;
+use PHPStan\Reflection\ParameterReflection;
+use PHPStan\Type\Type;
 
 /**
  * Reads the code of a thrown exception, but only when the exception takes an int $code as second constructor parameter.
@@ -15,6 +17,7 @@ use PHPStan\Analyser\Scope;
  */
 final class ExceptionCodeReader
 {
+    private const CODE_PARAMETER_NAME = 'code';
     private const CODE_PARAMETER_POSITION = 1;
 
     /**
@@ -27,25 +30,29 @@ final class ExceptionCodeReader
             return null;
         }
 
-        $codeParameterName = $this->codeParameterName($new, $scope);
-        if ($codeParameterName === null) {
+        $codeParameter = $this->findCodeParameter($new, $scope);
+        if ($codeParameter === null) {
             return null;
         }
 
-        $codeArgument = $this->findCodeArgument($new, $codeParameterName);
-        if ($codeArgument === false) {
-            return null;
-        }
-        if ($codeArgument === null) {
-            return 0;
+        $arguments = $new->getArgs();
+        foreach ($arguments as $argument) {
+            if ($argument->unpack) {
+                return null;
+            }
         }
 
-        $values = $scope->getType($codeArgument->value)->getConstantScalarValues();
+        $codeArgument = $this->findCodeArgument($arguments);
+        if ($codeArgument !== null) {
+            return $this->constantInt($scope->getType($codeArgument->value));
+        }
 
-        return count($values) === 1 && is_int($values[0]) ? $values[0] : null;
+        $default = $codeParameter->getDefaultValue();
+
+        return $default === null ? 0 : $this->constantInt($default);
     }
 
-    private function codeParameterName(New_ $new, Scope $scope): ?string
+    private function findCodeParameter(New_ $new, Scope $scope): ?ParameterReflection
     {
         foreach ($scope->getType($new)->getObjectClassReflections() as $reflection) {
             if (!$reflection->hasConstructor()) {
@@ -54,8 +61,8 @@ final class ExceptionCodeReader
 
             $parameters = $reflection->getConstructor()->getVariants()[0]->getParameters();
             $parameter = $parameters[self::CODE_PARAMETER_POSITION] ?? null;
-            if ($parameter?->getName() === 'code' && $parameter->getType()->isInteger()->yes()) {
-                return $parameter->getName();
+            if ($parameter?->getName() === self::CODE_PARAMETER_NAME && $parameter->getType()->isInteger()->yes()) {
+                return $parameter;
             }
         }
 
@@ -63,27 +70,29 @@ final class ExceptionCodeReader
     }
 
     /**
-     * @return Arg|false|null the argument, null when none was passed, false when the arguments cannot be resolved statically
+     * @param array<Arg> $arguments
      */
-    private function findCodeArgument(New_ $new, string $codeParameterName): Arg|false|null
+    private function findCodeArgument(array $arguments): ?Arg
     {
         $position = 0;
-        foreach ($new->getArgs() as $argument) {
-            if ($argument->unpack) {
-                return false;
-            }
-            if ($argument->name !== null) {
-                if ($argument->name->toString() === $codeParameterName) {
+        foreach ($arguments as $argument) {
+            if ($argument->name === null) {
+                if ($position === self::CODE_PARAMETER_POSITION) {
                     return $argument;
                 }
-                continue;
-            }
-            if ($position === self::CODE_PARAMETER_POSITION) {
+                ++$position;
+            } elseif ($argument->name->toString() === self::CODE_PARAMETER_NAME) {
                 return $argument;
             }
-            ++$position;
         }
 
         return null;
+    }
+
+    private function constantInt(Type $type): ?int
+    {
+        $values = $type->getConstantScalarValues();
+
+        return count($values) === 1 && is_int($values[0]) ? $values[0] : null;
     }
 }

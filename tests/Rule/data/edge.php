@@ -50,4 +50,35 @@ final class Edge
     {
         throw new \RuntimeException('dynamic', $code ?? 1726358005);
     }
+
+    public function defaultCode(): never
+    {
+        throw new DefaultCodeException('uses the default code');
+    }
+
+    public function rethrow(\Throwable $previous): never
+    {
+        throw $previous;
+    }
+
+    public function nullableCode(): never
+    {
+        throw new NullableCodeException('skipped');
+    }
+}
+
+final class DefaultCodeException extends \Exception
+{
+    public function __construct(string $message = '', int $code = 1726358010)
+    {
+        parent::__construct($message, $code);
+    }
+}
+
+final class NullableCodeException extends \Exception
+{
+    public function __construct(string $message = '', ?int $code = null)
+    {
+        parent::__construct($message, $code ?? 0);
+    }
 }

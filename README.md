@@ -40,7 +40,7 @@ includes:
 | `exceptionCode.outOfRange` | The code is outside the configured range |
 | `exceptionCode.duplicate` | The same code is thrown in more than one place, reported at every place |
 
-Only `throw new X(...)` is checked, and only when the second constructor parameter of `X` is an `int $code`. Exceptions such as `new HttpProblemException(404, ...)` are skipped. The parameter has to be named `code` and typed `int`, so `?int $code` is skipped. Rethrows (`throw $e`), spread arguments (`new X(...$arguments)`) and codes that are not constant (`$previous->getCode()`) are skipped as well.
+Only `throw new X(...)` is checked, and only when the second constructor parameter of `X` is an `int $code`. Exceptions such as `new HttpProblemException(404, ...)` are skipped. The parameter has to be named `code` and typed `int`, so `?int $code` is skipped. If the code is not passed, the default of the parameter counts. Rethrows (`throw $e`), spread arguments (`new X(...$arguments)`) and codes that are not constant (`$previous->getCode()`) are skipped as well.
 
 Duplicates are collected across all analysed files, so they work with parallel analysis and the result cache. A code can be reported as out of range and as a duplicate at the same time. A constant or enum value shared by several throws counts as a duplicate as well, because the code no longer tells which place threw. Use an inline `@phpstan-ignore exceptionCode.duplicate (reason)` if sharing is intended.
 
