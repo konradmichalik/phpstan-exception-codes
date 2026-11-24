@@ -24,6 +24,14 @@ final class ExceptionCodeRuleTest extends RuleTestCase
         ]);
     }
 
+    public function testRangeBoundariesAreInclusive(): void
+    {
+        $this->analyse([__DIR__ . '/data/boundaries.php'], [
+            ['Exception code 999999999 is outside the range 1000000000 to 2147483647.', 21],
+            ['Exception code 2147483648 is outside the range 1000000000 to 2147483647.', 26],
+        ]);
+    }
+
     public function testSkipsWhatCannotBeJudged(): void
     {
         $this->analyse([__DIR__ . '/data/edge.php'], []);
