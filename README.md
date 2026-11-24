@@ -42,7 +42,7 @@ includes:
 
 Only `throw new X(...)` is checked, and only when the second constructor parameter of `X` is an `int $code`. Exceptions such as `new HttpProblemException(404, ...)` are skipped. A code that is not a constant (`$previous->getCode()`) is skipped as well.
 
-Duplicates are collected across all analysed files, so they work with parallel analysis and the result cache. A code can be reported as out of range and as a duplicate at the same time.
+Duplicates are collected across all analysed files, so they work with parallel analysis and the result cache. A code can be reported as out of range and as a duplicate at the same time. A constant or enum value shared by several throws counts as a duplicate as well, because the code no longer tells which place threw. Use an inline `@phpstan-ignore exceptionCode.duplicate (reason)` if sharing is intended.
 
 ### Range
 

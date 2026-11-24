@@ -24,6 +24,16 @@ final class ExceptionCodeRuleTest extends RuleTestCase
         ]);
     }
 
+    public function testSkipsWhatCannotBeJudged(): void
+    {
+        $this->analyse([__DIR__ . '/data/edge.php'], []);
+    }
+
+    public function testInlineIgnoreSuppressesTheError(): void
+    {
+        $this->analyse([__DIR__ . '/data/ignored.php'], []);
+    }
+
     protected function getRule(): Rule
     {
         return new ExceptionCodeRule(new ExceptionCodeReader(), 1000000000, 2147483647);

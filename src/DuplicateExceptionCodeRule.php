@@ -40,7 +40,7 @@ final class DuplicateExceptionCodeRule implements Rule
                 continue;
             }
             foreach ($locations as [$file, $line]) {
-                $errors[] = RuleErrorBuilder::message(sprintf('Exception code %d is thrown in %d other place(s).', $code, count($locations) - 1))
+                $errors[] = RuleErrorBuilder::message(sprintf('Exception code %d is thrown in more than one place.', $code))
                     ->file($file)
                     ->line($line)
                     ->identifier('exceptionCode.duplicate')

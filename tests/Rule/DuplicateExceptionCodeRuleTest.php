@@ -18,23 +18,31 @@ final class DuplicateExceptionCodeRuleTest extends RuleTestCase
     public function testReportsEveryPlaceOfADuplicate(): void
     {
         $this->analyse([__DIR__ . '/data/duplicates.php'], [
-            ['Exception code 1726357767 is thrown in 1 other place(s).', 11],
-            ['Exception code 1726357767 is thrown in 1 other place(s).', 16],
+            ['Exception code 1726357767 is thrown in more than one place.', 11],
+            ['Exception code 1726357767 is thrown in more than one place.', 16],
         ]);
     }
 
     public function testDuplicatesAcrossFilesAreFound(): void
     {
         $this->analyse([__DIR__ . '/data/duplicates.php', __DIR__ . '/data/codes.php'], [
-            ['Exception code 1726357767 is thrown in 2 other place(s).', 11],
-            ['Exception code 1726357767 is thrown in 2 other place(s).', 16],
-            ['Exception code 1726357767 is thrown in 2 other place(s).', 38],
+            ['Exception code 1726357767 is thrown in more than one place.', 11],
+            ['Exception code 1726357767 is thrown in more than one place.', 16],
+            ['Exception code 1726357767 is thrown in more than one place.', 38],
         ]);
     }
 
     public function testThrowInTraitUsedTwiceIsNotADuplicate(): void
     {
         $this->analyse([__DIR__ . '/data/trait.php'], []);
+    }
+
+    public function testSharedConstantsAreDuplicatesToo(): void
+    {
+        $this->analyse([__DIR__ . '/data/edge.php'], [
+            ['Exception code 1726358003 is thrown in more than one place.', 26],
+            ['Exception code 1726358003 is thrown in more than one place.', 31],
+        ]);
     }
 
     protected function getRule(): Rule
