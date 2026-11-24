@@ -1,0 +1,29 @@
+parametersSchema:
+	exceptionCodes: structure([
+		minimum: int()
+		maximum: int()
+	])
+
+parameters:
+	exceptionCodes:
+		minimum: 1000000000
+		maximum: 2147483647
+
+services:
+	-
+		class: KonradMichalik\PhpStanExceptionCodes\ExceptionCodeReader
+	-
+		class: KonradMichalik\PhpStanExceptionCodes\ExceptionCodeRule
+		arguments:
+			minimum: %exceptionCodes.minimum%
+			maximum: %exceptionCodes.maximum%
+		tags:
+			- phpstan.rules.rule
+	-
+		class: KonradMichalik\PhpStanExceptionCodes\DuplicateExceptionCodeRule
+		tags:
+			- phpstan.rules.rule
+	-
+		class: KonradMichalik\PhpStanExceptionCodes\ExceptionCodeCollector
+		tags:
+			- phpstan.collector
